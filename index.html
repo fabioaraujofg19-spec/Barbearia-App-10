@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tanaka Barbearia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#D4AF37',
+                        'gold-hover': '#AA820A',
+                        darkBg: '#121212',
+                        darkCard: '#1E1E1E',
+                        darkInput: '#2A2A2A'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between items-center bg-darkBg">
+
+    <!-- CONTÊINER CENTRALIZADO RESPONSIVO -->
+    <div id="mainContainer" class="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl min-h-screen flex flex-col justify-between border-x border-gray-800/50 bg-darkBg shadow-2xl pb-4">
+
+        <!-- MODAL DE CADASTRO OBRIGATÓRIO (PRIMEIRO ACESSO) -->
+        <div id="authModal" class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 overflow-y-auto hidden">
+            <div class="bg-darkCard border border-gold/30 rounded-2xl p-6 w-full max-w-md text-center shadow-2xl my-auto">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gold/10 border border-gold flex items-center justify-center overflow-hidden">
+                    <i class="fa-solid fa-scissors text-3xl text-gold"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white mb-1">Seja Bem-vindo(a)</h2>
+                <p class="text-xs text-gray-400 mb-6">Cadastre-se para acessar os agendamentos da barbearia.</p>
+
+                <div class="space-y-4">
+                    <button onclick="loginWithGoogle()" class="w-full py-3 px-4 rounded-xl bg-white text-gray-800 font-semibold flex items-center justify-center gap-3 shadow hover:bg-gray-100 transition">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        Entrar com a Conta do Google
+                    </button>
+
+                    <div class="flex items-center my-4">
+                        <div class="flex-grow border-t border-gray-700"></div>
+                        <span class="px-3 text-xs text-gray-500 font-semibold">OU CADASTRO MANUAL</span>
+                        <div class="flex-grow border-t border-gray-700"></div>
+                    </div>
+
+                    <form onsubmit="submitManualAuth(event)" class="space-y-3 text-left">
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Foto de Perfil</label>
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-darkInput border border-gold/40 flex items-center justify-center overflow-hidden shrink-0">
+                                    <img id="registerAvatarPreview" class="w-full h-full object-cover hidden" alt="Avatar" />
+                                    <i id="registerAvatarIcon" class="fa-solid fa-user text-gold text-lg"></i>
+                                </div>
+                                <input type="file" id="registerAvatarInput" accept="image/*" onchange="previewUserAvatar(event)" class="text-xs text-gray-400 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-gold file:text-black file:font-semibold cursor-pointer">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Nome Completo *</label>
+                            <input type="text" id="regName" required placeholder="Ex: Carlos Silva" class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none">
+                        </div>
+
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Telefone / WhatsApp *</label>
+                            <input type="tel" id="regPhone" required placeholder="(62) 98453-0123" class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none">
+                        </div>
+
+                        <button type="submit" class="w-full bg-gold text-black font-bold py-3 rounded-xl mt-2 hover:bg-yellow-500 transition shadow-lg">
+                            Concluir Cadastro
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL CARTÃO FIDELIDADE DO CLIENTE -->
+        <div id="loyaltyModal" class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 hidden">
+            <div class="bg-darkCard border border-gold/50 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                    <h3 class="text-sm font-bold text-gold flex items-center gap-2"><i class="fa-solid fa-award text-base"></i> Cartão Fidelidade</h3>
+                    <button onclick="closeLoyaltyModal()" class="text-gray-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="space-y-1">
+                    <p id="loyaltyClientName" class="text-sm font-bold text-white"></p>
+                    <p class="text-xs text-gray-400">Complete 10 cortes para ganhar 1 corte inteiramente GRÁTIS!</p>
+                </div>
+
+                <!-- Grid de Selos 1 a 10 -->
+                <div id="loyaltyStampsGrid" class="grid grid-cols-5 gap-2.5 py-2"></div>
+
+                <div id="loyaltyRewardBanner" class="p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-xl text-emerald-400 text-xs font-bold hidden">
+                    🎉 Parabéns! Você atingiu 10 cortes e ganhou 1 CORTE GRÁTIS no seu próximo agendamento!
+                </div>
+
+                <button onclick="closeLoyaltyModal()" class="w-full bg-gold text-black font-bold py-2.5 rounded-xl text-xs">Fechar</button>
+            </div>
+        </div>
+
+        <!-- CABEÇALHO -->
+        <header class="bg-darkCard border-b border-gray-800 p-4 sticky top-0 z-40 flex items-center justify-between shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full border border-gold overflow-hidden bg-black flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-scissors text-gold"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <h1 id="shopTitle" class="font-bold text-white text-base leading-tight truncate">TANAKA BARBEARIA</h1>
+                    <p id="userGreeting" class="text-xs text-gray-400 truncate">Olá, Cliente</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <!-- Botão Menu Principal no Topo -->
+                <button onclick="switchView('viewHome')" id="topMenuBtn" title="Menu Principal" class="px-2.5 py-1.5 rounded-lg bg-darkInput border border-gold/40 text-gold text-xs font-bold flex items-center gap-1.5 hover:bg-gold/10 transition hidden">
+                    <i class="fa-solid fa-house text-xs"></i> <span class="hidden sm:inline">Início</span>
+                </button>
+
+                <!-- Botão Cartão Fidelidade -->
+                <button onclick="openLoyaltyModal()" title="Meu Cartão Fidelidade" class="w-9 h-9 rounded-full bg-gold/10 border border-gold/50 flex items-center justify-center text-gold hover:bg-gold/20 transition">
+                    <i class="fa-solid fa-award text-sm"></i>
+                </button>
+
+                <button onclick="toggleNotificationPanel()" class="relative w-9 h-9 rounded-full bg-darkInput border border-gray-700 flex items-center justify-center text-gray-300 hover:text-gold transition">
+                    <i class="fa-solid fa-bell text-sm"></i>
+                    <span id="notifBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                </button>
+
+                <div onclick="openProfileModal()" title="Perfil / Sair" class="w-9 h-9 rounded-full border border-gold/50 bg-darkInput overflow-hidden cursor-pointer flex items-center justify-center shrink-0">
+                    <img id="userHeaderAvatar" class="w-full h-full object-cover hidden" alt="Avatar" />
+                    <i id="userHeaderIcon" class="fa-solid fa-user text-gold text-xs"></i>
+                </div>
+
+                <button onclick="openAdminAuthModal()" title="Área Restrita / Configurações" class="w-9 h-9 rounded-full bg-darkInput border border-gray-700 flex items-center justify-center text-gray-300 hover:text-gold hover:border-gold transition shrink-0">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- PAINEL DE NOTIFICAÇÕES -->
+        <div id="notifPanel" class="fixed top-16 right-4 left-4 sm:left-auto sm:w-80 z-50 bg-darkCard border border-gold/40 rounded-2xl p-4 shadow-2xl hidden">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-2 mb-3">
+                <h3 class="text-xs font-bold text-gold uppercase flex items-center gap-1.5"><i class="fa-solid fa-bell"></i> Notificações</h3>
+                <button onclick="toggleNotificationPanel()" class="text-gray-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="notifList" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs"></div>
+        </div>
+
+        <!-- VIEWS PRINCIPAIS -->
+        <main class="w-full p-4 sm:p-6 flex-grow">
+
+            <!-- SEÇÃO 1: TELA PRINCIPAL (HOME) -->
+            <section id="viewHome" class="space-y-6">
+                <!-- Capa Principal -->
+                <div class="relative rounded-2xl overflow-hidden border border-gold/30 shadow-2xl bg-darkCard">
+                    <div class="h-48 sm:h-64 w-full bg-gray-800 relative">
+                        <img id="barberHeroImg" src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1000&q=80" class="w-full h-full object-cover opacity-60" alt="Capa" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-darkCard via-transparent to-transparent"></div>
+                        <div class="absolute top-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full border border-gold/40 text-[10px] font-semibold text-gold uppercase tracking-wider flex items-center gap-1">
+                            <i class="fa-solid fa-star text-gold"></i> Experiência Premium
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6 -mt-8 relative z-10">
+                        <h2 id="homeHeroTitle" class="text-2xl sm:text-3xl font-extrabold text-white tracking-wide">TANAKA BARBEARIA</h2>
+                        <p id="homeHeroDesc" class="text-xs sm:text-sm text-gray-300 mt-2 leading-relaxed">Experimente o melhor serviço de barbearia com profissionais qualificados e um ambiente moderno, feito para você relaxar.</p>
+                        
+                        <div class="mt-5 flex flex-col gap-3">
+                            <button onclick="switchView('viewAgendamento')" class="w-full bg-gold text-black font-extrabold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:bg-yellow-500 transition text-sm sm:text-base">
+                                <i class="fa-regular fa-clock text-lg"></i> AGENDAR AGORA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO DA EQUIPE DE BARBEIROS E INFORMAÇÕES DA BARBEARIA -->
+                <div class="bg-darkCard border border-gold/20 rounded-2xl p-5 shadow-lg space-y-4">
+                    <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-users text-gold text-xl"></i>
+                            <h3 class="font-bold text-white text-base">Nossa Equipe &amp; Barbearia</h3>
+                        </div>
+                        <span class="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded border border-gold/30 font-semibold">Profissionais</span>
+                    </div>
+
+                    <!-- Informações do Estabelecimento -->
+                    <div class="bg-darkInput p-3 rounded-xl border border-gray-800 space-y-2 text-xs text-gray-300">
+                        <p id="shopAddressDisplay" class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-red-500"></i> <span>Av. Principal, 1000 - Centro</span></p>
+                        <p id="shopPhoneDisplay" class="flex items-center gap-2"><i class="fa-solid fa-phone text-emerald-400"></i> <span>(62) 98453-0123</span></p>
+                    </div>
+
+                    <!-- Lista de Barbeiros na Tela Principal -->
+                    <div id="homeBarbersGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                </div>
+
+                <!-- SEÇÃO OPÇÃO DE PAGAMENTO NA HOME -->
+                <div class="bg-darkCard border border-gold/20 rounded-2xl p-5 shadow-lg space-y-4">
+                    <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-gold text-xl"></i>
+                            <h3 class="font-bold text-white text-base">Opção de Pagamento</h3>
+                        </div>
+                        <span class="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded border border-gold/30 font-semibold">Escolha</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setHomePayMethod('PIX')" id="btnHomePayPix" class="p-3 rounded-xl border border-gold bg-gold/10 text-gold font-bold text-xs flex flex-col items-center gap-1 transition">
+                            <i class="fa-brands fa-pix text-lg"></i>
+                            Pagar Agora (PIX)
+                        </button>
+                        <button onclick="setHomePayMethod('Barbearia')" id="btnHomePayShop" class="p-3 rounded-xl border border-gray-800 bg-darkInput text-gray-300 font-bold text-xs flex flex-col items-center gap-1 transition">
+                            <i class="fa-solid fa-store text-lg"></i>
+                            Pagar na Barbearia
+                        </button>
+                    </div>
+
+                    <div id="homePayPixContent" class="space-y-3">
+                        <div class="bg-darkInput p-3 rounded-xl border border-gray-800 flex items-center justify-between">
+                            <div class="overflow-hidden pr-2">
+                                <span class="text-[10px] text-gray-500 block font-semibold uppercase">Chave PIX Oficial</span>
+                                <span id="pixKeyDisplay" class="font-mono text-xs sm:text-sm text-gold font-bold truncate block">12.345.678/0001-90</span>
+                            </div>
+                            <button onclick="copyPixKey()" class="bg-gold/20 hover:bg-gold/30 text-gold text-xs font-bold px-3 py-2 rounded-lg border border-gold/40 flex items-center gap-1 shrink-0 transition">
+                                <i class="fa-regular fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-3 bg-white rounded-xl text-center max-w-xs mx-auto">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=00020126360014BR.GOV.BCB.PIX011412345678000190520400005303986540550.005802BR5916TanakaBarbearia6009SaoPaulo62070503***6304E2CA" alt="QR Code PIX" class="w-32 h-32">
+                            <span class="text-[10px] text-gray-700 font-bold mt-1">Escaneie no seu Banco</span>
+                        </div>
+                    </div>
+
+                    <div id="homePayShopContent" class="hidden p-4 bg-darkInput rounded-xl border border-gray-800 text-center space-y-1">
+                        <i class="fa-solid fa-handshake text-gold text-2xl mb-1"></i>
+                        <p class="text-xs text-white font-bold">Pagamento Presencial</p>
+                        <p class="text-[11px] text-gray-400">Você pode realizar o pagamento no caixa no dia do seu atendimento usando Cartão, Dinheiro ou PIX.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <button onclick="openExternalUrl(appData.instaLink, 'Instagram')" class="bg-darkCard hover:bg-darkInput border border-gray-800 p-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-gray-200 transition">
+                        <i class="fa-brands fa-instagram text-pink-500 text-lg"></i> Instagram
+                    </button>
+                    <button onclick="openExternalUrl(appData.mapsLink, 'Google Maps')" class="bg-darkCard hover:bg-darkInput border border-gray-800 p-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-gray-200 transition">
+                        <i class="fa-solid fa-location-dot text-red-500 text-lg"></i> Maps
+                    </button>
+                    <button onclick="openExternalUrl(appData.appLink, 'Download App')" class="bg-darkCard hover:bg-darkInput border border-gray-800 p-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-gray-200 transition col-span-2 sm:col-span-1">
+                        <i class="fa-solid fa-mobile-screen-button text-gold text-lg"></i> Baixar App
+                    </button>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 2: FORMULÁRIO DE NOVO AGENDAMENTO -->
+            <section id="viewAgendamento" class="hidden space-y-5">
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-gold">Novo Agendamento</h2>
+                    <p class="text-xs text-gray-400">Escolha o barbeiro, data, horário e forma de pagamento.</p>
+                </div>
+
+                <form id="bookingForm" onsubmit="processBooking(event)" class="bg-darkCard border border-gray-800 rounded-2xl p-5 space-y-4 shadow-xl">
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase text-gold tracking-wider">1. Dados do Cliente</h3>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Nome Completo</label>
+                            <input type="text" id="bookName" required class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">Telefone / WhatsApp</label>
+                                <input type="tel" id="bookPhone" required class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">E-mail (opcional)</label>
+                                <input type="email" id="bookEmail" class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-800">
+
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase text-gold tracking-wider">2. Selecione os Serviços</h3>
+                        <div id="servicesListContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                    </div>
+
+                    <hr class="border-gray-800">
+
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase text-gold tracking-wider">3. Barbeiro, Data e Horário</h3>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Selecione o Barbeiro</label>
+                            <select id="bookBarber" required onchange="updateAvailableTimes()" class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none"></select>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">Data do Agendamento</label>
+                                <input type="date" id="bookDate" required onchange="updateAvailableTimes()" onclick="this.showPicker &amp;&amp; this.showPicker()" class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">Horário Disponível</label>
+                                <select id="bookTime" required class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-sm text-white focus:border-gold outline-none">
+                                    <option value="">Selecione data/barbeiro...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-800">
+
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase text-gold tracking-wider">4. Forma de Pagamento</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-2 p-3 bg-darkInput border border-gray-800 rounded-xl cursor-pointer hover:border-gold/50 transition">
+                                <input type="radio" name="payOption" value="PIX" checked class="accent-gold">
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Via PIX</span>
+                                    <span class="text-[10px] text-gray-400">Pagar agora</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-2 p-3 bg-darkInput border border-gray-800 rounded-xl cursor-pointer hover:border-gold/50 transition">
+                                <input type="radio" name="payOption" value="Na Barbearia" class="accent-gold">
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Na Barbearia</span>
+                                    <span class="text-[10px] text-gray-400">Dinheiro/Cartão</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bg-darkInput p-4 rounded-xl border border-gray-800 flex items-center justify-between">
+                        <span class="text-xs text-gray-300 font-semibold">Valor Total Previsto:</span>
+                        <span id="bookingTotalDisplay" class="text-xl font-bold text-gold">R$ 0,00</span>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gold text-black font-extrabold py-3.5 rounded-xl shadow-lg hover:bg-yellow-500 transition flex items-center justify-center gap-2">
+                        <i class="fa-regular fa-paper-plane text-lg"></i> SOLICITAR AGENDAMENTO
+                    </button>
+                </form>
+            </section>
+
+            <!-- SEÇÃO 3: CATÁLOGO DE PRODUTOS -->
+            <section id="viewProdutos" class="hidden space-y-4">
+                <div class="text-center mb-4">
+                    <h2 class="text-2xl font-bold text-gold">Produtos &amp; Cuidados</h2>
+                    <p class="text-xs text-gray-400">Adquira produtos de alta qualidade para o seu visual.</p>
+                </div>
+                <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+            </section>
+
+            <!-- SEÇÃO RESTREITA: PAINEL ADMINISTRATIVO -->
+            <section id="viewAdmin" class="hidden space-y-6">
+                <div class="bg-gold/10 border border-gold/40 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-gold"><i class="fa-solid fa-user-shield"></i> Painel Administrativo</h2>
+                        <p class="text-[11px] text-gray-300">Confirme agendamentos, gerencie fidelidade e barbeiros.</p>
+                    </div>
+                    <button onclick="lockAdmin()" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-3 py-1 rounded text-xs font-semibold">Sair Admin</button>
+                </div>
+
+                <!-- Abas Admin -->
+                <div class="flex border-b border-gray-800 text-xs sm:text-sm">
+                    <button onclick="switchAdminTab('tabConfirmacoes')" id="btnTabConfirmacoes" class="py-2.5 px-4 border-b-2 border-gold text-gold font-bold">Agendamentos</button>
+                    <button onclick="switchAdminTab('tabConfig')" id="btnTabConfig" class="py-2.5 px-4 border-b-2 border-transparent text-gray-400">Configurações</button>
+                    <button onclick="switchAdminTab('tabSeguranca')" id="btnTabSeguranca" class="py-2.5 px-4 border-b-2 border-transparent text-gray-400">Segurança Admin</button>
+                </div>
+
+                <!-- ABA 1: GERENCIAR & CONFIRMAR AGENDAMENTOS -->
+                <div id="tabConfirmacoes" class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white">Solicitações &amp; Agendamentos</h3>
+                        <button onclick="clearAllAppointments()" class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded font-semibold hover:bg-red-500/30 transition">
+                            <i class="fa-solid fa-trash"></i> Excluir Todos
+                        </button>
+                    </div>
+                    <div id="adminAppointmentsList" class="space-y-3"></div>
+                </div>
+
+                <!-- ABA 2: EDITAR CONFIGURAÇÕES GERAIS, CAPA E ADICIONAR ITENS -->
+                <div id="tabConfig" class="hidden space-y-6">
+                    <form onsubmit="saveShopConfig(event)" class="bg-darkCard border border-gray-800 rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold text-gold uppercase">Informações Gerais, Capa &amp; Links</h4>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Nome da Barbearia</label>
+                            <input type="text" id="cfgShopName" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Endereço Completo da Barbearia</label>
+                            <input type="text" id="cfgShopAddress" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">URL da Imagem de Capa (Hero Image)</label>
+                            <input type="url" id="cfgHeroImg" placeholder="https://exemplo.com/imagem.jpg" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Chave PIX Oficial</label>
+                            <input type="text" id="cfgPixKey" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Telefone WhatsApp (Administrador)</label>
+                            <input type="text" id="cfgWhatsApp" placeholder="5562984530123" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Link para Baixar o App (Tela Principal)</label>
+                            <input type="url" id="cfgAppLink" placeholder="https://exemplo.com/app.apk" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Link do Instagram</label>
+                            <input type="url" id="cfgInstaLink" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Link do Google Maps</label>
+                            <input type="url" id="cfgMapsLink" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <button type="submit" class="w-full bg-gold text-black font-bold py-2 rounded-lg text-xs">Salvar Configurações</button>
+                    </form>
+
+                    <!-- Adicionar Novo Serviço -->
+                    <div class="bg-darkCard border border-gray-800 rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold text-gold uppercase">Adicionar Novo Serviço</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input type="text" id="newSrvName" placeholder="Nome do Serviço" class="bg-darkInput border border-gray-700 rounded-lg p-2 text-xs text-white">
+                            <input type="number" step="0.5" id="newSrvPrice" placeholder="Preço (Ex: 30.00)" class="bg-darkInput border border-gray-700 rounded-lg p-2 text-xs text-white">
+                        </div>
+                        <button onclick="addNewServiceFromForm()" class="w-full bg-gold/20 text-gold border border-gold/40 font-bold py-2 rounded-lg text-xs">+ Cadastrar Serviço</button>
+                        <div id="adminServicesList" class="space-y-2 mt-3"></div>
+                    </div>
+
+                    <!-- ADICIONAR NOVO BARBEIRO (COM BUSCA DA FOTO NA GALERIA DO CELULAR/COMPUTADOR) -->
+                    <div class="bg-darkCard border border-gray-800 rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold text-gold uppercase">Adicionar Novo Barbeiro</h4>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">Nome do Barbeiro *</label>
+                                <input type="text" id="newBarberName" placeholder="Ex: Lucas Gabriel" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2 text-xs text-white">
+                            </div>
+                            
+                            <div>
+                                <label class="text-xs text-gray-400 block mb-1">Foto do Barbeiro (Buscar na Galeria) *</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-full bg-darkInput border border-gold/40 flex items-center justify-center overflow-hidden shrink-0">
+                                        <img id="newBarberPhotoPreview" class="w-full h-full object-cover hidden" alt="Foto Barbeiro" />
+                                        <i id="newBarberPhotoIcon" class="fa-solid fa-user-scissors text-gold text-base"></i>
+                                    </div>
+                                    <input type="file" id="newBarberPhotoInput" accept="image/*" onchange="previewBarberPhoto(event)" class="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-gold file:text-black file:font-semibold cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="addNewBarberFromForm()" class="w-full bg-gold/20 text-gold border border-gold/40 font-bold py-2 rounded-lg text-xs">+ Cadastrar Barbeiro</button>
+                        <div id="adminBarbersList" class="space-y-2 mt-3"></div>
+                    </div>
+
+                    <!-- Adicionar Novo Produto -->
+                    <div class="bg-darkCard border border-gray-800 rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold text-gold uppercase">Adicionar Novo Produto</h4>
+                        <div class="space-y-2">
+                            <input type="text" id="newProdName" placeholder="Nome do Produto" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2 text-xs text-white">
+                            <input type="text" id="newProdPrice" placeholder="Preço (Ex: R$ 45,00)" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2 text-xs text-white">
+                            <input type="url" id="newProdImg" placeholder="Link da Imagem (URL)" class="w-full bg-darkInput border border-gray-700 rounded-lg p-2 text-xs text-white">
+                        </div>
+                        <button onclick="addNewProductFromForm()" class="w-full bg-gold/20 text-gold border border-gold/40 font-bold py-2 rounded-lg text-xs">+ Cadastrar Produto</button>
+                    </div>
+                </div>
+
+                <!-- ABA 3: ALTERAR SENHA DO ADMIN -->
+                <div id="tabSeguranca" class="hidden space-y-4">
+                    <form onsubmit="changeAdminPassword(event)" class="bg-darkCard border border-gray-800 rounded-xl p-4 space-y-3">
+                        <h4 class="text-xs font-bold text-gold uppercase">Alterar Senha do Administrador</h4>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Senha Atual</label>
+                            <input type="password" id="oldAdminPass" required class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Nova Senha</label>
+                            <input type="password" id="newAdminPass" required class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 block mb-1">Confirmar Nova Senha</label>
+                            <input type="password" id="confirmAdminPass" required class="w-full bg-darkInput border border-gray-700 rounded-lg p-2.5 text-xs text-white">
+                        </div>
+                        <button type="submit" class="w-full bg-gold text-black font-bold py-2 rounded-lg text-xs">Atualizar Senha</button>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- MODAL AUTENTICAÇÃO ADMINISTRATIVA -->
+        <div id="adminAuthModal" class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 hidden">
+            <div class="bg-darkCard border border-gold/40 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl">
+                <i class="fa-solid fa-lock text-3xl text-gold mb-3"></i>
+                <h3 class="text-lg font-bold text-white mb-1">Acesso do Administrador</h3>
+                <p class="text-xs text-gray-400 mb-4">Digite a senha para gerenciar a barbearia.</p>
+                <form onsubmit="verifyAdminPass(event)" class="space-y-3">
+                    <input type="password" id="adminPassInput" placeholder="Senha (Padrão: 1234)" required class="w-full bg-darkInput border border-gray-700 rounded-xl p-3 text-center text-sm text-white focus:border-gold outline-none">
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeAdminAuthModal()" class="w-1/2 bg-gray-800 text-gray-300 py-2.5 rounded-xl text-xs font-bold">Cancelar</button>
+                        <button type="submit" class="w-1/2 bg-gold text-black py-2.5 rounded-xl text-xs font-bold">Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        const ALL_SLOTS = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+
+        const DEFAULT_DATA = {
+            shopName: "TANAKA BARBEARIA",
+            shopPhone: "5562984530123",
+            shopAddress: "Av. Principal, 1000 - Centro, Goiânia - GO",
+            pixKey: "12.345.678/0001-90",
+            heroImg: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1000&q=80",
+            instaLink: "https://instagram.com",
+            mapsLink: "https://maps.google.com",
+            appLink: "https://www.webintoapp.com",
+            adminPass: "1234",
+            barbersObjects: [
+                { name: "TANAKA", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" },
+                { name: "PEDRO", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" },
+                { name: "LUCAS", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80" }
+            ],
+            services: [
+                { id: "s1", category: "Cortes", name: "Corte Social", price: 30.00 },
+                { id: "s2", category: "Cortes", name: "Corte Degradê", price: 35.00 },
+                { id: "s3", category: "Barba", name: "Barba Tradicional", price: 25.00 },
+                { id: "s4", category: "Combos", name: "Corte Social + Barba", price: 50.00 }
+            ],
+            products: [
+                { name: "Pomada Modeladora", price: "R$ 35,00", img: "https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=300&q=80" },
+                { name: "Óleo para Barba", price: "R$ 40,00", img: "https://images.unsplash.com/photo-1626285861696-9f0bf5a49c6d?auto=format&fit=crop&w=300&q=80" }
+            ]
+        };
+
+        let appData = JSON.parse(localStorage.getItem('tanaka_app_data')) || DEFAULT_DATA;
+        let currentUser = JSON.parse(localStorage.getItem('tanaka_user')) || null;
+        let appointments = JSON.parse(localStorage.getItem('tanaka_appointments')) || [];
+        let notifications = JSON.parse(localStorage.getItem('tanaka_notifications')) || [];
+        let userCutPoints = parseInt(localStorage.getItem('tanaka_cut_points')) || 0;
+        let viewHistory = ['viewHome'];
+        let tempAvatarBase64 = "";
+        let tempBarberPhotoBase64 = "";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            checkUserAuth();
+        });
+
+        function initApp() {
+            document.getElementById('shopTitle').innerText = appData.shopName;
+            document.getElementById('homeHeroTitle').innerText = appData.shopName;
+            document.getElementById('pixKeyDisplay').innerText = appData.pixKey;
+            document.getElementById('barberHeroImg').src = appData.heroImg || DEFAULT_DATA.heroImg;
+            document.getElementById('shopAddressDisplay').querySelector('span').innerText = appData.shopAddress || DEFAULT_DATA.shopAddress;
+            document.getElementById('shopPhoneDisplay').querySelector('span').innerText = appData.shopPhone;
+
+            document.getElementById('cfgShopName').value = appData.shopName;
+            document.getElementById('cfgShopAddress').value = appData.shopAddress || DEFAULT_DATA.shopAddress;
+            document.getElementById('cfgHeroImg').value = appData.heroImg || '';
+            document.getElementById('cfgPixKey').value = appData.pixKey;
+            document.getElementById('cfgWhatsApp').value = appData.shopPhone;
+            document.getElementById('cfgAppLink').value = appData.appLink || '';
+            document.getElementById('cfgInstaLink').value = appData.instaLink;
+            document.getElementById('cfgMapsLink').value = appData.mapsLink;
+
+            renderHomeBarbers();
+            renderServicesForm();
+            renderBarbersSelect();
+            renderProductsGrid();
+            renderAdminServices();
+            renderAdminBarbers();
+            renderAdminAppointments();
+            renderNotifications();
+        }
+
+        function checkUserAuth() {
+            const authModal = document.getElementById('authModal');
+            if (!currentUser) {
+                authModal.classList.remove('hidden');
+            } else {
+                authModal.classList.add('hidden');
+                updateUserHeaderUI();
+            }
+        }
+
+        function previewUserAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempAvatarBase64 = e.target.result;
+                    document.getElementById('registerAvatarPreview').src = tempAvatarBase64;
+                    document.getElementById('registerAvatarPreview').classList.remove('hidden');
+                    document.getElementById('registerAvatarIcon').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // PRÉ-VISUALIZAÇÃO DA FOTO DO BARBEIRO CARREGADA DA GALERIA
+        function previewBarberPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempBarberPhotoBase64 = e.target.result;
+                    document.getElementById('newBarberPhotoPreview').src = tempBarberPhotoBase64;
+                    document.getElementById('newBarberPhotoPreview').classList.remove('hidden');
+                    document.getElementById('newBarberPhotoIcon').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function submitManualAuth(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+
+            if (!name || !phone) return alert("Preencha o nome e telefone.");
+
+            currentUser = { name, phone, avatar: tempAvatarBase64 || null, type: 'manual' };
+            localStorage.setItem('tanaka_user', JSON.stringify(currentUser));
+            checkUserAuth();
+        }
+
+        function loginWithGoogle() {
+            currentUser = {
+                name: "Fábio Araújo",
+                phone: "(62) 98453-0123",
+                email: "fabio.araujo@gmail.com",
+                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
+                type: 'google'
+            };
+            localStorage.setItem('tanaka_user', JSON.stringify(currentUser));
+            checkUserAuth();
+        }
+
+        function updateUserHeaderUI() {
+            if (!currentUser) return;
+            document.getElementById('userGreeting').innerText = `Olá, ${currentUser.name.split(' ')[0]}`;
+            document.getElementById('bookName').value = currentUser.name;
+            document.getElementById('bookPhone').value = currentUser.phone;
+            if (currentUser.email) document.getElementById('bookEmail').value = currentUser.email;
+
+            if (currentUser.avatar) {
+                document.getElementById('userHeaderAvatar').src = currentUser.avatar;
+                document.getElementById('userHeaderAvatar').classList.remove('hidden');
+                document.getElementById('userHeaderIcon').classList.add('hidden');
+            }
+        }
+
+        function renderHomeBarbers() {
+            const grid = document.getElementById('homeBarbersGrid');
+            grid.innerHTML = '';
+            const list = appData.barbersObjects || DEFAULT_DATA.barbersObjects;
+
+            list.forEach(b => {
+                grid.innerHTML += `
+                    <div class="bg-darkInput border border-gray-800 rounded-xl p-3 flex flex-col items-center text-center space-y-2">
+                        <div class="w-16 h-16 rounded-full border-2 border-gold overflow-hidden bg-black shrink-0">
+                            <img src="${b.img}" class="w-full h-full object-cover" alt="${b.name}">
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${b.name}</h4>
+                            <span class="text-[10px] text-gold font-semibold">Barbeiro Especialista</span>
+                        </div>
+                        <button onclick="selectBarberAndBook('${b.name}')" class="w-full bg-gold/20 hover:bg-gold/30 text-gold text-[10px] font-bold py-1.5 rounded-lg border border-gold/30 transition">
+                            Agendar
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function selectBarberAndBook(barberName) {
+            switchView('viewAgendamento');
+            document.getElementById('bookBarber').value = barberName;
+            updateAvailableTimes();
+        }
+
+        function openLoyaltyModal() {
+            if (!currentUser) return alert("Cadastre-se para acessar seu cartão fidelidade.");
+            document.getElementById('loyaltyClientName').innerText = currentUser.name;
+            renderLoyaltyStamps();
+            document.getElementById('loyaltyModal').classList.remove('hidden');
+        }
+
+        function closeLoyaltyModal() {
+            document.getElementById('loyaltyModal').classList.add('hidden');
+        }
+
+        function renderLoyaltyStamps() {
+            const grid = document.getElementById('loyaltyStampsGrid');
+            const rewardBanner = document.getElementById('loyaltyRewardBanner');
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= 10; i++) {
+                const isStamped = i <= userCutPoints;
+                grid.innerHTML += `
+                    <div class="w-12 h-12 rounded-full border ${isStamped ? 'border-gold bg-gold text-black font-extrabold' : 'border-gray-700 bg-darkInput text-gray-500'} flex items-center justify-center text-xs shadow transition-all">
+                        ${isStamped ? '<i class="fa-solid fa-scissors text-sm"></i>' : i}
+                    </div>
+                `;
+            }
+
+            if (userCutPoints >= 10) {
+                rewardBanner.classList.remove('hidden');
+            } else {
+                rewardBanner.classList.add('hidden');
+            }
+        }
+
+        function openExternalUrl(url, name) {
+            if (!url || url === '#' || url.trim() === '') {
+                alert(`O link do ${name} ainda não foi configurado pelo administrador.`);
+                return;
+            }
+
+            let formattedUrl = url.trim();
+            if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+                formattedUrl = 'https://' + formattedUrl;
+            }
+
+            try {
+                window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+            } catch (e) {
+                alert(`Não foi possível abrir o link do ${name}. Por favor, verifique a URL.`);
+            }
+        }
+
+        function setHomePayMethod(method) {
+            const btnPix = document.getElementById('btnHomePayPix');
+            const btnShop = document.getElementById('btnHomePayShop');
+            const pixContent = document.getElementById('homePayPixContent');
+            const shopContent = document.getElementById('homePayShopContent');
+
+            if (method === 'PIX') {
+                btnPix.className = "p-3 rounded-xl border border-gold bg-gold/10 text-gold font-bold text-xs flex flex-col items-center gap-1 transition";
+                btnShop.className = "p-3 rounded-xl border border-gray-800 bg-darkInput text-gray-300 font-bold text-xs flex flex-col items-center gap-1 transition";
+                pixContent.classList.remove('hidden');
+                shopContent.classList.add('hidden');
+            } else {
+                btnShop.className = "p-3 rounded-xl border border-gold bg-gold/10 text-gold font-bold text-xs flex flex-col items-center gap-1 transition";
+                btnPix.className = "p-3 rounded-xl border border-gray-800 bg-darkInput text-gray-300 font-bold text-xs flex flex-col items-center gap-1 transition";
+                shopContent.classList.remove('hidden');
+                pixContent.classList.add('hidden');
+            }
+        }
+
+        function renderServicesForm() {
+            const container = document.getElementById('servicesListContainer');
+            container.innerHTML = '';
+            appData.services.forEach(srv => {
+                const item = document.createElement('label');
+                item.className = "flex items-center justify-between p-3 bg-darkInput rounded-xl border border-gray-800 cursor-pointer hover:border-gold/50 transition";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" value="${srv.id}" data-price="${srv.price}" data-name="${srv.name}" onchange="calculateBookingTotal()" class="w-4 h-4 accent-gold rounded cursor-pointer">
+                        <span class="text-xs sm:text-sm font-medium text-white">${srv.name}</span>
+                    </div>
+                    <span class="text-xs font-bold text-gold">R$ ${srv.price.toFixed(2).replace('.', ',')}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function calculateBookingTotal() {
+            const checkboxes = document.querySelectorAll('#servicesListContainer input[type="checkbox"]:checked');
+            let total = 0;
+            checkboxes.forEach(cb => total += parseFloat(cb.getAttribute('data-price')));
+            document.getElementById('bookingTotalDisplay').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        }
+
+        function renderBarbersSelect() {
+            const select = document.getElementById('bookBarber');
+            select.innerHTML = '<option value="">Selecione o Barbeiro...</option>';
+            const list = appData.barbersObjects || DEFAULT_DATA.barbersObjects;
+            list.forEach(b => select.innerHTML += `<option value="${b.name}">${b.name}</option>`);
+        }
+
+        function updateAvailableTimes() {
+            const barber = document.getElementById('bookBarber').value;
+            const dateInput = document.getElementById('bookDate').value;
+            const selectTime = document.getElementById('bookTime');
+
+            selectTime.innerHTML = '<option value="">Selecione...</option>';
+            if (!barber || !dateInput) return;
+
+            const dateArr = dateInput.split('-');
+            const formattedDate = `${dateArr[2]}/${dateArr[1]}/${dateArr[0]}`;
+
+            const bookedSlots = appointments
+                .filter(a => a.barber === barber && a.date === formattedDate && a.status === 'Confirmado')
+                .map(a => a.time);
+
+            ALL_SLOTS.forEach(slot => {
+                const isBooked = bookedSlots.includes(slot);
+                const option = document.createElement('option');
+                option.value = slot;
+                option.innerText = isBooked ? `${slot} (Indisponível)` : slot;
+                if (isBooked) option.disabled = true;
+                selectTime.appendChild(option);
+            });
+        }
+
+        function processBooking(event) {
+            event.preventDefault();
+            const name = document.getElementById('bookName').value;
+            const phone = document.getElementById('bookPhone').value;
+            const barber = document.getElementById('bookBarber').value;
+            const date = document.getElementById('bookDate').value;
+            const time = document.getElementById('bookTime').value;
+            const payOption = document.querySelector('input[name="payOption"]:checked').value;
+
+            const selectedCbs = document.querySelectorAll('#servicesListContainer input[type="checkbox"]:checked');
+            if (selectedCbs.length === 0) return alert("Selecione pelo menos um serviço.");
+
+            let selectedServicesNames = [];
+            let totalVal = 0;
+            selectedCbs.forEach(cb => {
+                selectedServicesNames.push(cb.getAttribute('data-name'));
+                totalVal += parseFloat(cb.getAttribute('data-price'));
+            });
+
+            const dateArr = date.split('-');
+            const formattedDate = `${dateArr[2]}/${dateArr[1]}/${dateArr[0]}`;
+
+            const newAppointment = {
+                id: Date.now(),
+                clientName: name,
+                clientPhone: phone,
+                barber: barber,
+                date: formattedDate,
+                time: time,
+                services: selectedServicesNames.join(', '),
+                paymentMethod: payOption,
+                totalPrice: totalVal,
+                status: 'Pendente',
+                createdAt: new Date().toLocaleString()
+            };
+
+            appointments.unshift(newAppointment);
+            localStorage.setItem('tanaka_appointments', JSON.stringify(appointments));
+
+            const notifMsg = `Novo pedido de agendamento: ${name} em ${formattedDate} às ${time} com ${barber}.`;
+            notifications.unshift({ id: newAppointment.id, msg: notifMsg, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            localStorage.setItem('tanaka_notifications', JSON.stringify(notifications));
+
+            renderNotifications();
+            renderAdminAppointments();
+
+            alert("Agendamento solicitado com sucesso! O administrador irá analisar e confirmar em breve.");
+            switchView('viewHome');
+        }
+
+        function confirmAndSendWhatsApp(index) {
+            const a = appointments[index];
+            a.status = 'Confirmado';
+            localStorage.setItem('tanaka_appointments', JSON.stringify(appointments));
+
+            userCutPoints += 1;
+            if (userCutPoints >= 10) {
+                userCutPoints = 0;
+                alert(`O cliente ${a.clientName} atingiu 10 cortes e ganhou um CORTE GRÁTIS! O cartão foi reiniciado para os próximos cortes.`);
+            } else {
+                alert(`Agendamento confirmado! Ponto adicionado ao Cartão Fidelidade do cliente (${userCutPoints}/10).`);
+            }
+            localStorage.setItem('tanaka_cut_points', userCutPoints);
+
+            notifications = notifications.filter(n => n.id !== a.id);
+            localStorage.setItem('tanaka_notifications', JSON.stringify(notifications));
+
+            renderNotifications();
+            renderAdminAppointments();
+            updateAvailableTimes();
+
+            let text = `*AGENDAMENTO CONFIRMADO - ${appData.shopName.toUpperCase()}*\n\n`;
+            text += `👤 *Cliente:* ${a.clientName}\n`;
+            text += `📞 *Telefone:* ${a.clientPhone}\n`;
+            text += `✂️ *Barbeiro:* ${a.barber}\n`;
+            text += `📅 *Data:* ${a.date}\n`;
+            text += `⏰ *Horário:* ${a.time}\n`;
+            text += `💈 *Serviços:* ${a.services}\n`;
+            text += `💳 *Pagamento:* ${a.paymentMethod}\n`;
+            text += `💰 *Valor Total:* R$ ${a.totalPrice.toFixed(2).replace('.', ',')}\n\nSeu horário está garantido!`;
+
+            window.open(`https://wa.me/${appData.shopPhone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function renderAdminAppointments() {
+            const container = document.getElementById('adminAppointmentsList');
+            container.innerHTML = '';
+            if (appointments.length === 0) return container.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Nenhum agendamento realizado.</p>`;
+            
+            appointments.forEach((a, idx) => {
+                const statusBadge = a.status === 'Confirmado' 
+                    ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-semibold">Confirmado</span>' 
+                    : '<span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-semibold">Pendente</span>';
+
+                container.innerHTML += `
+                    <div class="bg-darkInput border border-gray-800 rounded-xl p-3 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-gold">${a.clientName}</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="flex gap-1.5">
+                                ${a.status !== 'Confirmado' ? `<button onclick="confirmAndSendWhatsApp(${idx})" class="text-[10px] bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 px-2 py-1 rounded border border-emerald-500/30 font-semibold transition"><i class="fa-brands fa-whatsapp"></i> Confirmar &amp; WhatsApp</button>` : ''}
+                                <button onclick="cancelAppointment(${idx})" class="text-[10px] bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 py-1 rounded border border-red-500/30 font-semibold transition"><i class="fa-solid fa-trash"></i> Excluir</button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-300"><i class="fa-solid fa-scissors text-gold/70"></i> ${a.services}</p>
+                        <p class="text-[11px] text-gray-400">Contato: ${a.clientPhone} | Pagamento: ${a.paymentMethod}</p>
+                        <div class="flex justify-between items-center text-[11px] text-gray-400 pt-1 border-t border-gray-800/60">
+                            <span><i class="fa-regular fa-calendar"></i> ${a.date} às ${a.time} (${a.barber})</span>
+                            <span class="font-bold text-gold">R$ ${a.totalPrice.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function cancelAppointment(index) {
+            if (confirm("Deseja excluir este agendamento e liberar o horário?")) {
+                const a = appointments[index];
+                appointments.splice(index, 1);
+                localStorage.setItem('tanaka_appointments', JSON.stringify(appointments));
+
+                notifications = notifications.filter(n => n.id !== a.id);
+                localStorage.setItem('tanaka_notifications', JSON.stringify(notifications));
+
+                renderAdminAppointments();
+                renderNotifications();
+                updateAvailableTimes();
+                alert("Agendamento excluído!");
+            }
+        }
+
+        function clearAllAppointments() {
+            if (appointments.length === 0) return alert("Não há agendamentos.");
+            if (confirm("Deseja apagar TODOS os agendamentos registrados?")) {
+                appointments = [];
+                notifications = [];
+                localStorage.setItem('tanaka_appointments', JSON.stringify(appointments));
+                localStorage.setItem('tanaka_notifications', JSON.stringify(notifications));
+                renderAdminAppointments();
+                renderNotifications();
+                updateAvailableTimes();
+                alert("Histórico e notificações limpos!");
+            }
+        }
+
+        function addNewServiceFromForm() {
+            const name = document.getElementById('newSrvName').value.trim();
+            const price = parseFloat(document.getElementById('newSrvPrice').value);
+            if (name && !isNaN(price)) {
+                appData.services.push({ id: "s_" + Date.now(), category: "Outros", name, price });
+                saveAppData();
+                renderAdminServices();
+                renderServicesForm();
+                document.getElementById('newSrvName').value = '';
+                document.getElementById('newSrvPrice').value = '';
+                alert("Serviço adicionado!");
+            } else { alert("Preencha o nome e preço."); }
+        }
+
+        // ADICIONAR NOVO BARBEIRO USANDO A FOTO SELECIONADA DA GALERIA
+        function addNewBarberFromForm() {
+            const name = document.getElementById('newBarberName').value.trim();
+
+            if (!name) return alert("Por favor, digite o nome do barbeiro.");
+            if (!tempBarberPhotoBase64) return alert("Por favor, selecione uma foto para o barbeiro na sua galeria.");
+
+            if (!appData.barbersObjects) appData.barbersObjects = [];
+
+            appData.barbersObjects.push({
+                name: name,
+                img: tempBarberPhotoBase64
+            });
+
+            saveAppData();
+            renderAdminBarbers();
+            renderBarbersSelect();
+            renderHomeBarbers();
+
+            document.getElementById('newBarberName').value = '';
+            document.getElementById('newBarberPhotoInput').value = '';
+            document.getElementById('newBarberPhotoPreview').classList.add('hidden');
+            document.getElementById('newBarberPhotoIcon').classList.remove('hidden');
+            tempBarberPhotoBase64 = "";
+
+            alert("Barbeiro cadastrado com sucesso com a foto da galeria!");
+        }
+
+        function addNewProductFromForm() {
+            const name = document.getElementById('newProdName').value.trim();
+            const price = document.getElementById('newProdPrice').value.trim();
+            const img = document.getElementById('newProdImg').value.trim();
+
+            if (name && price) {
+                appData.products.push({
+                    name,
+                    price,
+                    img: img || 'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=300&q=80'
+                });
+                saveAppData();
+                renderProductsGrid();
+                document.getElementById('newProdName').value = '';
+                document.getElementById('newProdPrice').value = '';
+                document.getElementById('newProdImg').value = '';
+                alert("Produto cadastrado!");
+            }
+        }
+
+        function switchView(viewId) {
+            ['viewHome', 'viewAgendamento', 'viewProdutos', 'viewAdmin'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+
+            if (viewHistory[viewHistory.length - 1] !== viewId) {
+                viewHistory.push(viewId);
+            }
+
+            const topMenuBtn = document.getElementById('topMenuBtn');
+            const mainContainer = document.getElementById('mainContainer');
+
+            if (viewId === 'viewHome') {
+                topMenuBtn.classList.add('hidden');
+            } else {
+                topMenuBtn.classList.remove('hidden');
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function goBackView() {
+            if (viewHistory.length > 1) {
+                viewHistory.pop();
+                const prev = viewHistory[viewHistory.length - 1];
+                switchView(prev);
+            } else { switchView('viewHome'); }
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            list.innerHTML = '';
+            if (notifications.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-center py-2">Sem notificações.</p>`;
+                badge.classList.add('hidden');
+                return;
+            }
+            badge.innerText = notifications.length;
+            badge.classList.remove('hidden');
+            notifications.forEach(n => {
+                list.innerHTML += `<div class="bg-darkInput p-2.5 rounded-lg border border-gray-800"><p class="text-white text-[11px]">${n.msg}</p><span class="text-[9px] text-gold block text-right mt-1">${n.time}</span></div>`;
+            });
+        }
+
+        function toggleNotificationPanel() { document.getElementById('notifPanel').classList.toggle('hidden'); }
+        function copyPixKey() { navigator.clipboard.writeText(appData.pixKey); alert("Chave PIX copiada!"); }
+
+        function renderProductsGrid() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            appData.products.forEach(p => {
+                grid.innerHTML += `
+                    <div class="bg-darkCard border border-gray-800 rounded-xl p-3 flex flex-col justify-between shadow">
+                        <div class="h-28 w-full bg-black rounded-lg overflow-hidden mb-2">
+                            <img src="${p.img}" class="w-full h-full object-cover" alt="Produto">
+                        </div>
+                        <h4 class="text-xs font-bold text-white leading-snug">${p.name}</h4>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-xs font-bold text-gold">${p.price}</span>
+                            <button onclick="alert('Procure o caixa na barbearia!')" class="text-[10px] bg-gold/20 text-gold px-2 py-1 rounded border border-gold/30">Comprar</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openAdminAuthModal() { document.getElementById('adminAuthModal').classList.remove('hidden'); }
+        function closeAdminAuthModal() { document.getElementById('adminAuthModal').classList.add('hidden'); }
+
+        function verifyAdminPass(e) {
+            e.preventDefault();
+            if (document.getElementById('adminPassInput').value === appData.adminPass) {
+                closeAdminAuthModal();
+                document.getElementById('adminPassInput').value = '';
+                switchView('viewAdmin');
+                clearNotificationsOnView();
+            } else { alert("Senha incorreta!"); }
+        }
+
+        function lockAdmin() { switchView('viewHome'); }
+
+        function switchAdminTab(tabId) {
+            ['tabConfirmacoes', 'tabConfig', 'tabSeguranca'].forEach(t => document.getElementById(t).classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            if (tabId === 'tabConfirmacoes') {
+                clearNotificationsOnView();
+            }
+
+            document.getElementById('btnTabConfirmacoes').className = tabId === 'tabConfirmacoes' ? 'py-2.5 px-4 border-b-2 border-gold text-gold font-bold' : 'py-2.5 px-4 border-b-2 border-transparent text-gray-400';
+            document.getElementById('btnTabConfig').className = tabId === 'tabConfig' ? 'py-2.5 px-4 border-b-2 border-gold text-gold font-bold' : 'py-2.5 px-4 border-b-2 border-transparent text-gray-400';
+            document.getElementById('btnTabSeguranca').className = tabId === 'tabSeguranca' ? 'py-2.5 px-4 border-b-2 border-gold text-gold font-bold' : 'py-2.5 px-4 border-b-2 border-transparent text-gray-400';
+        }
+
+        function clearNotificationsOnView() {
+            notifications = [];
+            localStorage.setItem('tanaka_notifications', JSON.stringify(notifications));
+            renderNotifications();
+        }
+
+        function renderAdminServices() {
+            const container = document.getElementById('adminServicesList');
+            container.innerHTML = '';
+            appData.services.forEach((s, idx) => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between bg-darkInput p-2 rounded-lg border border-gray-800 text-xs">
+                        <span class="text-white">${s.name}</span>
+                        <div class="flex items-center gap-2">
+                            <input type="number" step="0.5" value="${s.price}" onchange="updateServicePrice(${idx}, this.value)" class="w-16 bg-black text-gold p-1 rounded text-right border border-gray-700">
+                            <button onclick="removeService(${idx})" class="text-red-400"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateServicePrice(index, val) {
+            appData.services[index].price = parseFloat(val) || 0;
+            saveAppData();
+            renderServicesForm();
+        }
+
+        function removeService(index) {
+            if (confirm("Remover serviço?")) {
+                appData.services.splice(index, 1);
+                saveAppData();
+                renderAdminServices();
+                renderServicesForm();
+            }
+        }
+
+        function renderAdminBarbers() {
+            const container = document.getElementById('adminBarbersList');
+            container.innerHTML = '';
+            const list = appData.barbersObjects || DEFAULT_DATA.barbersObjects;
+
+            list.forEach((b, idx) => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between bg-darkInput p-2 rounded-lg border border-gray-800 text-xs">
+                        <div class="flex items-center gap-2">
+                            <img src="${b.img}" class="w-7 h-7 rounded-full object-cover border border-gold" alt="${b.name}">
+                            <span class="text-white font-semibold">${b.name}</span>
+                        </div>
+                        <button onclick="removeBarber(${idx})" class="text-red-400"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        function removeBarber(idx) {
+            if (confirm("Remover barbeiro?")) {
+                appData.barbersObjects.splice(idx, 1);
+                saveAppData();
+                renderAdminBarbers();
+                renderBarbersSelect();
+                renderHomeBarbers();
+            }
+        }
+
+        function changeAdminPassword(e) {
+            e.preventDefault();
+            if (document.getElementById('oldAdminPass').value !== appData.adminPass) return alert("Senha atual incorreta.");
+            if (document.getElementById('newAdminPass').value !== document.getElementById('confirmAdminPass').value) return alert("Senhas não coincidem.");
+            appData.adminPass = document.getElementById('newAdminPass').value;
+            saveAppData();
+            alert("Senha alterada com sucesso!");
+        }
+
+        function saveShopConfig(e) {
+            e.preventDefault();
+            appData.shopName = document.getElementById('cfgShopName').value;
+            appData.shopAddress = document.getElementById('cfgShopAddress').value;
+            appData.heroImg = document.getElementById('cfgHeroImg').value;
+            appData.pixKey = document.getElementById('cfgPixKey').value;
+            appData.shopPhone = document.getElementById('cfgWhatsApp').value;
+            appData.appLink = document.getElementById('cfgAppLink').value;
+            appData.instaLink = document.getElementById('cfgInstaLink').value;
+            appData.mapsLink = document.getElementById('cfgMapsLink').value;
+            saveAppData();
+            initApp();
+            alert("Configurações atualizadas com sucesso!");
+        }
+
+        function saveAppData() {
+            localStorage.setItem('tanaka_app_data', JSON.stringify(appData));
+        }
+
+        function openProfileModal() {
+            if (confirm("Deseja sair da conta do cliente atual?")) {
+                localStorage.removeItem('tanaka_user');
+                currentUser = null;
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
